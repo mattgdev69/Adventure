@@ -1,7 +1,7 @@
 
-import sys
 import sqlite3
 import random
+import time
 
 
 def main():
@@ -73,6 +73,9 @@ def main():
         # Attack
         if action == "attack":
             Attack(player, loc.enemies[0])
+            if player.hp <= 0:
+                action = "q"
+                print(player.name, "has died!")
 
         # User wants to quit
         if action == "q" or action == "quit":
@@ -80,6 +83,7 @@ def main():
             break
 
 
+# Combat routine
 def Attack(player, enemy):
 
     while enemy.hp > 0 and player.hp > 0:
@@ -89,22 +93,37 @@ def Attack(player, enemy):
 
         # See if enemy AC is greater than hit chance (hit)
         if hit_chance < enemy.ac:
+            # Damage is a random number between 1 and the player's max damage
             damage = random.randint(1, player.weapon_equipped.damage)
             print(player.name, "has hit the", enemy.name, "for", damage, "damage!")
             enemy.hp -= damage
-            print(enemy.name, "has", enemy.hp, "remaining.")
+            if enemy.hp > 0:
+                print(enemy.name, "has", enemy.hp, "HP remaining.")
+            else:
+                print("The", enemy.name, "is dead!")
+                break
+            print()
+        else:
+            print(player.name, "has missed the", enemy.name)
             print()
 
         # Enemy attacks
+        time.sleep(0.5)
         hit_chance = random.randint(1, 20)
 
-        # See if enemy AC is greater than hit chance (hit)
+        # See if player AC is greater than hit chance (hit)
         if hit_chance < player.ac:
+            # Damage is a random number between 1 and the enemy's max damage
             damage = random.randint(1, enemy.damage)
-            print(enemy.name, "has hit ", player.name, "for", damage, "damage!")
+            print(enemy.name, "has hit", player.name, "for", damage, "damage!")
             player.hp -= damage
-            print(player.name, "has", player.hp, "remaining.")
+            print(player.name, "has", player.hp, "HP remaining.")
             print()
+        else:
+            print(enemy.name, "has missed!")
+            print()
+
+        time.sleep(0.5)
 
 
 class Location:
