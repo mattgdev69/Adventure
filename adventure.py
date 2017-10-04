@@ -1,4 +1,3 @@
-
 import sqlite3
 import random
 import time
@@ -55,7 +54,6 @@ def main():
         print('Location:  You are in the', current_loc.name)
         print()
         print(current_loc.desc)
-        print()
         if len(current_loc.weapons) > 0:
             print("You see a", current_loc.weapons[0].name, "in this area.")
         if len(current_loc.enemies) > 0:
@@ -98,7 +96,7 @@ def main():
 
         # List player inventory
         if action[:3] == "inv":
-            player.inventory
+            player.inventory()
 
         # Attack
         if action == "attack":
@@ -203,12 +201,25 @@ class Player:
         self.weapon_equipped = self.weapons[0]
 
     def equip(self, weapon):
+        current_weapon = self.weapon_equipped
         for w in self.weapons:
             if w.name.lower() == weapon:
                 self.weapon_equipped = w
+                print (self.weapon_equipped.name, "equipped.")
+                break
+        if self.weapon_equipped == current_weapon:
+            print("Weapon not in inventory!")
+            print()
+
+    def inventory(self):
+        print("Weapons in inventory:")
+        weapon = ""
+        for w in self.weapons:
+            if self.weapon_equipped.name == w.name:
+                weapon = w.name + "*"
             else:
-                print("Weapon not in inventory!")
-                print()
+                weapon = w.name
+            print(weapon)
 
 
 class Enemy:
