@@ -39,9 +39,10 @@ def main():
     # Main loop
     while True:
 
-        # There is a 20% chance an enemy will appear in the current area if
-        # not already present
-        if (random.randint(1, 100)) < 20 and len(current_loc.enemies) == 0:
+        # Check to see if there is a chance chance an enemy will appear in the
+        # current area (if not already present)
+        if ((random.randint(1, 100)) < current_loc.encounter and
+                len(current_loc.enemies) == 0 and current_loc.encounter > 0):
             c.execute('SELECT * FROM {tn} ORDER BY RANDOM() LIMIT 1'.
                       format(tn="Enemy"))
             row = c.fetchone()
@@ -55,9 +56,11 @@ def main():
         print()
         print(current_loc.desc)
         if len(current_loc.weapons) > 0:
-            print("You see a", current_loc.weapons[0].name, "in this area.")
+            print("You see a {wp} in this area.".
+                  format(wp=current_loc.weapons[0].name))
         if len(current_loc.enemies) > 0:
-            print("Enemy encountered in this location!  You see a", current_loc.enemies[0].name)
+            print("Enemy encountered in this location!  You see a",
+                  current_loc.enemies[0].name)
         print()
         print("You have", player.hp, "health.")
         action = input("What next? ")
@@ -124,7 +127,8 @@ def Attack(player, loc):
         if hit_chance < enemy.ac:
             # Damage is a random number between 1 and the player's max damage
             damage = random.randint(1, player.weapon_equipped.damage)
-            print(player.name, "has hit the", enemy.name, "for", damage, "damage!")
+            print("{pn} has hit the {en} for {dg} damage!".
+                  format(pn=player.name, en=enemy.name, dg=damage))
             enemy.hp -= damage
             if enemy.hp > 0:
                 print(enemy.name, "has", enemy.hp, "HP remaining.")
@@ -145,9 +149,11 @@ def Attack(player, loc):
         if hit_chance < player.ac:
             # Damage is a random number between 1 and the enemy's max damage
             damage = random.randint(1, enemy.damage)
-            print(enemy.name, "has hit", player.name, "for", damage, "damage!")
+            print("{en} has hit {pn} for {dg} damage!".
+                  format(en=enemy.name, pn=player.name, dg=damage))
             player.hp -= damage
-            print(player.name, "has", player.hp, "HP remaining.")
+            print("{pn} has {hp} HP remaining.".
+                  format(pn=player.name, hp=player.hp))
             print()
         else:
             print(enemy.name, "has missed!")
@@ -173,8 +179,10 @@ class Location:
         self.CONST_EAST = 5
         self.CONST_WEST = 6
         self.CONST_WEAPONS = 7
+        self.CONST_ENCOUNTER = 9
         self.weapons = []
         self.enemies = []
+        self.encounter = 0
 
     def store(self, row, weapons):
         self.locid = row[self.CONST_LOCID]
@@ -187,6 +195,7 @@ class Location:
         for w in weapons:
             if w.id == row[self.CONST_WEAPONS]:
                 self.weapons.append(w)
+        self.encounter = row[self.CONST_ENCOUNTER]
 
 
 class Player:
